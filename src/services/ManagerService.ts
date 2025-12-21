@@ -1,4 +1,4 @@
-import {CartItem, LoginDto, Order, ProductData, User} from "../constants/Interfaces";
+import {CartItem, LoginDto, Order, ProductData, User, UserContext} from "../constants/Interfaces";
 
 export class ManagerService {
     private static managerService: ManagerService;
@@ -14,9 +14,9 @@ export class ManagerService {
         return ManagerService.managerService;
     }
 
-    public async getUserByEmail(email: string): Promise<LoginDto | undefined> {
+    public async getUserByEmail(email: string): Promise<User | undefined> {
         try {
-            const response = await fetch(`${this.uri}customers?email=${encodeURIComponent(email)}`, {
+            const response = await fetch(`${this.uri}customers/getbyemail?email=${encodeURIComponent(email)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,7 +28,6 @@ export class ManagerService {
                 if (response.status === 404) return undefined; // Utilisateur non trouvé
                 throw new Error(`Erreur HTTP: ${response.status}`);
             }
-
             // NestJS renvoie généralement l'objet User directement ou dans un wrapper
             return await response.json();
         }
@@ -38,16 +37,16 @@ export class ManagerService {
         }
     }
 
-    public async verifyToken(token: string): Promise<User> {
+    public async verifyToken(): Promise<UserContext> {
         try {
-            const response = await fetch(`${this.uri}/auth/profile`, {
+            const response = await fetch(`${this.uri}customers/verify`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`, // Le token est envoyé ici
                     'Content-Type': 'application/json'
-                }
+                },
+                credentials: 'include'
             });
-            if (!response.ok) throw new Error('Token invalide ou expiré');
+            if (!response.ok) throw new Error('Session invalide ou expiré');
             return await response.json();
         } catch (error) {
             throw error;
@@ -72,6 +71,27 @@ export class ManagerService {
         }
         catch(error) {
             console.error(`[ManagerService] Erreur API Login: `, error);
+            throw error;
+        }
+    }
+
+    public async logout(): Promise<User> {
+        try {
+            const response = await fetch(`${this.uri}customers/logout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Échec de la déconnexion');
+            }
+
+            return await response.json();
+        }
+        catch(error) {
+            console.error(`[ManagerService] Erreur API Logout: `, error);
             throw error;
         }
     }
@@ -129,12 +149,9 @@ export class ManagerService {
     }
 
     // POST /orders (Requiert authentification)
-    public async createOrder(token: string, items: CartItem[], total: number): Promise<Order> {
-        // Vérification du token simulée
-        if (!token) throw new Error("Unauthorized");
+    public async createOrder(items: CartItem[], total: number): Promise<Order> {
 
         await new Promise(resolve => setTimeout(resolve, 500));
-        console.log(`[ManagerService] POST /orders with Token: ${token.substring(0, 10)}...`);
 
         // Décodage simulé pour récupérer l'ID user depuis le token
         const userId = ''; // Dans la réalité: req.user.id extrait du token

@@ -53,8 +53,13 @@ export const ContactSection = () => (
 
         <div className="mt-8 bg-gray-200 w-full h-64 rounded-lg flex items-center justify-center text-gray-500 shadow-inner">
             <div className="text-center">
-                <MapPin size={48} className="mx-auto mb-2 text-red-600" />
-                <p className="font-medium">Carte Google Maps</p>
+                <iframe
+                    className="w-full h-full"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2789.129124243976!2d0.1581853773628968!3d45.648228621139694!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47fe32706f46482b%3A0x1ca2de5b886ac527!2sKodak%20Express!5e0!3m2!1sfr!2sfr!4v1766255546658!5m2!1sfr!2sfr"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"/>
+                {/*<MapPin size={48} className="mx-auto mb-2 text-red-600"/>*/}
+                {/*<p className="font-medium">Carte Google Maps</p>*/}
             </div>
         </div>
     </div>

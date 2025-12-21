@@ -11,13 +11,23 @@ import { ProfileView } from './components/profile-view/ProfileView';
 import { RegisterView } from './components/register-view/RegisterView';
 // import logo from './logo.svg';
 import './App.css';
-import {AuthResponse, CartItem, LoginDto, Order, ProductData, RegisterDto, Tab, User} from "./constants/Interfaces";
+import {
+    AuthResponse,
+    CartItem,
+    LoginDto,
+    Order,
+    ProductData,
+    RegisterDto,
+    Tab,
+    User,
+    UserContext
+} from "./constants/Interfaces";
 import {ManagerService} from "./services/ManagerService";
 
 function App() {
     const [activeTab, setActiveTab] = useState<Tab>('home');
     const [cart, setCart] = useState<CartItem[]>([]);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<UserContext | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [products, setProducts] = useState<ProductData[]>([]);
 
@@ -27,20 +37,14 @@ function App() {
 
         // --- RESTAURATION SÉCURISÉE DE SESSION VIA TOKEN ---
         const checkSession = async () => {
-            const token = localStorage.getItem('kodak_access_token');
-            if (token) {
-                try {
-                    // On vérifie le token auprès du "serveur" (simulation)
-                    const user = await manager.verifyToken(token);
-                    setCurrentUser(user);
+            try {
+                // On vérifie le token auprès du "serveur" (simulation)
+                const user = await manager.verifyToken();
 
-                    // Si valide, on charge les données
-                    // manager.getUserOrders(token).then(setOrders);
-                } catch (e) {
-                    console.error("Session invalide:", e);
-                    // Si token invalide, on nettoie
-                    localStorage.removeItem('kodak_access_token');
-                }
+                setCurrentUser(user);
+
+            } catch (e) {
+                console.error("Session invalide:", e);
             }
         };
 
@@ -70,8 +74,6 @@ function App() {
 
     const handleLoginSuccess = (authResponse: AuthResponse) => {
         setCurrentUser(authResponse.user);
-        // ON STOCKE LE TOKEN (Pas le mot de passe, pas l'objet user complet)
-        localStorage.setItem('kodak_access_token', authResponse.access_token);
         setActiveTab('profile');
         showNotification(`Bienvenue ${authResponse.user.firstName} !`);
     };
@@ -82,31 +84,57 @@ function App() {
         showNotification("Compte créé ! Veuillez vous connecter.");
     };
 
-    const handleLogout = () => {
-        setCurrentUser(null);
-        setOrders([]);
-        // ON SUPPRIME LE TOKEN
-        localStorage.removeItem('kodak_access_token');
-        setActiveTab('home');
-        showNotification("Déconnecté.");
+    const handleLogout = async () => {
+        try {
+            // MODIFIÉ : On demande au serveur de détruire le cookie
+            await ManagerService.getInstance().logout();
+        } catch (error) {
+            console.error("Erreur lors du logout", error);
+        } finally {
+            // Quoi qu'il arrive, on nettoie le front
+            setCurrentUser(null);
+            setOrders([]);
+            setActiveTab('home');
+            showNotification("Déconnecté.");
+        }
     };
 
     const handleCheckout = async () => {
         if (!currentUser) return;
 
-        // On récupère le token pour authentifier la requête
-        const token = localStorage.getItem('kodak_access_token');
-        if (!token) {
-            handleLogout();
-            return;
-        }
+        // MODIFIÉ : Plus de vérification de token manuel
+        // Si currentUser est là, on suppose que la session (cookie) est valide.
 
-        const total = cart.reduce((acc, item) => acc + item.price, 0);
-        const newOrder = await ManagerService.getInstance().createOrder(token, cart, total);
-        setOrders([newOrder, ...orders]);
-        setCart([]);
-        setActiveTab('profile');
-        showNotification("Commande enregistrée !");
+        try {
+            const total = cart.reduce((acc, item) => acc + item.price, 0);
+
+            // MODIFIÉ : On ne passe plus le token en argument !
+            // La méthode createOrder doit utiliser credentials: 'include' (ou withCredentials)
+            const newOrder = await ManagerService.getInstance().createOrder(cart, total);
+
+            setOrders([newOrder, ...orders]);
+            setCart([]);
+            setActiveTab('profile');
+            showNotification("Commande enregistrée !");
+        } catch (e) {
+            console.error("Erreur commande", e);
+            showNotification("Erreur lors de la commande. Êtes-vous connecté ?");
+        }
+        // if (!currentUser) return;
+        //
+        // // On récupère le token pour authentifier la requête
+        // const token = localStorage.getItem('token');
+        // if (!token) {
+        //     handleLogout();
+        //     return;
+        // }
+        //
+        // const total = cart.reduce((acc, item) => acc + item.price, 0);
+        // const newOrder = await ManagerService.getInstance().createOrder(token, cart, total);
+        // setOrders([newOrder, ...orders]);
+        // setCart([]);
+        // setActiveTab('profile');
+        // showNotification("Commande enregistrée !");
     };
 
     // Filtre les commandes pour l'utilisateur actuel

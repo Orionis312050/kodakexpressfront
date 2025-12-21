@@ -26,7 +26,7 @@ export interface RegisterDto extends User {
 
 export interface AuthResponse {
     access_token: string;
-    user: User;
+    user: UserContext;
 }
 
 export interface ProductDto {
@@ -46,6 +46,13 @@ export interface User {
     email: string;
     phone?: string;
     address?: string;
+}
+
+export interface UserContext {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
 }
 
 // 4. Interface Commande

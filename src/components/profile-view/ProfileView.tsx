@@ -1,6 +1,52 @@
-import { LogOut, Package, Settings, UserIcon } from 'lucide-react';
+import {Loader2, LogOut, Package, Settings, UserIcon} from 'lucide-react';
+import {User} from "../../constants/Interfaces";
+import {ManagerService} from "../../services/ManagerService";
+import {useEffect, useState} from "react";
 
 export const ProfileView = ({ currentUser, orders, onLogout }: { currentUser: any, orders: any, onLogout: any }) => {
+    const [fullUser, setFullUser] = useState<User | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await ManagerService.getInstance().getUserByEmail(currentUser.email);
+                setFullUser(user);
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'utilisateur", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, [currentUser.email]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="animate-spin text-yellow-500" size={48} />
+            </div>
+        );
+    }
+
+    if (!fullUser) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Erreur</h2>
+                    <p className="text-gray-600 mb-6">Impossible de charger les informations de votre profil.</p>
+                    <button
+                        onClick={onLogout}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+                    >
+                        Retour à la connexion
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -20,15 +66,15 @@ export const ProfileView = ({ currentUser, orders, onLogout }: { currentUser: an
                             <dl className="sm:divide-y sm:divide-gray-200">
                                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                     <dt className="text-sm font-medium text-gray-500">Nom</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{currentUser.name}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{fullUser.firstName} {fullUser.lastName}</dd>
                                 </div>
                                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                     <dt className="text-sm font-medium text-gray-500">Email</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{currentUser.email}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{fullUser.email}</dd>
                                 </div>
                                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                     <dt className="text-sm font-medium text-gray-500">Téléphone</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{currentUser.phone || "Non renseigné"}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{fullUser.phone || "Non renseigné"}</dd>
                                 </div>
                             </dl>
                         </div>
