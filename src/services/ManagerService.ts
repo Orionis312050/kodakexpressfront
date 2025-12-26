@@ -1,4 +1,12 @@
-import {CartItem, LoginDto, Order, ProductData, User, UserContext} from "../constants/Interfaces";
+import {
+    CartItem,
+    GeneratePresignedUrlDto,
+    LoginDto,
+    Order,
+    ProductData,
+    User,
+    UserContext
+} from "../constants/Interfaces";
 
 export class ManagerService {
     private static managerService: ManagerService;
@@ -15,85 +23,60 @@ export class ManagerService {
     }
 
     public async getUserByEmail(email: string): Promise<User | undefined> {
-        try {
-            const response = await fetch(`${this.uri}customers/getbyemail?email=${encodeURIComponent(email)}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer ' + token // Si vous gérez l'authentification JWT
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 404) return undefined; // Utilisateur non trouvé
-                throw new Error(`Erreur HTTP: ${response.status}`);
+        const response = await fetch(`${this.uri}customers/getbyemail?email=${encodeURIComponent(email)}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                // 'Authorization': 'Bearer ' + token // Si vous gérez l'authentification JWT
             }
-            // NestJS renvoie généralement l'objet User directement ou dans un wrapper
-            return await response.json();
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) return undefined; // Utilisateur non trouvé
         }
-        catch(error) {
-            console.error(`[ManagerService] Erreur API: `, error);
-            throw error;
-        }
+        // NestJS renvoie généralement l'objet User directement ou dans un wrapper
+        return await response.json();
     }
 
-    public async verifyToken(): Promise<UserContext> {
-        try {
-            const response = await fetch(`${this.uri}customers/verify`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            });
-            if (!response.ok) throw new Error('Session invalide ou expiré');
-            return await response.json();
-        } catch (error) {
-            throw error;
-        }
+    public async verifyToken(): Promise<UserContext | null> {
+        const response = await fetch(`${this.uri}customers/verify`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+        if (!response.ok) return null;
+        return await response.json();
     }
 
-    public async login(loginDto: LoginDto): Promise<User> {
-        try {
-            const response = await fetch(`${this.uri}customers/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginDto)
-            });
+    public async login(loginDto: LoginDto): Promise<User | null> {
+        const response = await fetch(`${this.uri}customers/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(loginDto)
+        });
 
-            if (!response.ok) {
-                // Gérer les erreurs 401 (Unauthorized) etc.
-                const error = await response.json();
-                throw new Error(error.message || 'Échec de la connexion');
-            }
+        if (!response.ok) {
+            return null;
+        }
 
-            return await response.json(); // Retourne l'user (et potentiellement un token JWT)
-        }
-        catch(error) {
-            console.error(`[ManagerService] Erreur API Login: `, error);
-            throw error;
-        }
+        return await response.json();
     }
 
-    public async logout(): Promise<User> {
-        try {
-            const response = await fetch(`${this.uri}customers/logout`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
-            });
+    public async logout(): Promise<User | null> {
+        const response = await fetch(`${this.uri}customers/logout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Échec de la déconnexion');
-            }
+        if (!response.ok) {
+            return null;
+        }
 
-            return await response.json();
-        }
-        catch(error) {
-            console.error(`[ManagerService] Erreur API Logout: `, error);
-            throw error;
-        }
+        return await response.json();
     }
 
     public async registerUser(user: User) {
@@ -124,28 +107,38 @@ export class ManagerService {
         }
     }
 
+    public async updateUser(user: User): Promise<User | null> {
+        const response = await fetch(`${this.uri}customers/update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user) // Envoi des données du formulaire au format JSON
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const { password, ...userWithoutPassword } = await response.json();
+        return userWithoutPassword;
+    }
+
     public async getProducts(): Promise<ProductData[]> {
-        try {
-            const response = await fetch(`${this.uri}products`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer ' + token // Si vous gérez l'authentification JWT
-                }
-            });
-
-            if (!response.ok) {
-                if (response.status === 404) return []; // Utilisateur non trouvé
-                throw new Error(`Erreur HTTP: ${response.status}`);
+        const response = await fetch(`${this.uri}products`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                // 'Authorization': 'Bearer ' + token // Si vous gérez l'authentification JWT
             }
+        });
 
-            // NestJS renvoie généralement l'objet User directement ou dans un wrapper
-            return await response.json();
+        if (!response.ok) {
+            return [];
         }
-        catch(error) {
-            console.error(`[ManagerService] Erreur API: `, error);
-            throw error;
-        }
+
+        // NestJS renvoie généralement l'objet User directement ou dans un wrapper
+        return await response.json();
     }
 
     // POST /orders (Requiert authentification)
@@ -166,7 +159,47 @@ export class ManagerService {
     }
 
     public async getUserOrders(token: string): Promise<Order[]> {
-        if (!token) throw new Error("Unauthorized");
         return [];
+    }
+
+    public async generateUploadUrl(data: GeneratePresignedUrlDto): Promise<{ uploadUrl: string; key: string }> {
+        try {
+            const response = await fetch(`${this.uri}s3/generate-upload-url`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "Erreur lors de la génération de l'URL d'upload");
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error(`[ManagerService] Erreur generateUploadUrl: `, error);
+            throw error;
+        }
+    }
+
+    public async deleteOrderFiles(userId: string, orderId: string): Promise<{ message: string }> {
+        try {
+            const response = await fetch(`${this.uri}s3/order/${userId}/${orderId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "Erreur lors de la suppression des fichiers");
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error(`[ManagerService] Erreur deleteOrderFiles: `, error);
+            throw error;
+        }
     }
 }

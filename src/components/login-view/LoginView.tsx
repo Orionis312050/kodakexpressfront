@@ -48,6 +48,7 @@ export const LoginView = ({ onLoginSuccess, setActiveTab }: { onLoginSuccess: an
                         <label className="block text-sm font-medium text-gray-700">Email</label>
                         <input
                             type="email"
+                            name="email"
                             required
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                             value={email}
@@ -58,6 +59,7 @@ export const LoginView = ({ onLoginSuccess, setActiveTab }: { onLoginSuccess: an
                         <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
                         <input
                             type="password"
+                            name="password"
                             required
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                             value={password}

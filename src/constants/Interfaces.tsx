@@ -1,7 +1,7 @@
 import React from 'react';
 import {Film, Gift, Image, UserIcon} from 'lucide-react';
 
-export type Tab = 'home' | 'services' | 'commander' | 'contact' | 'cart' | 'login' | 'register' | 'profile';
+export type Tab = 'home' | 'services' | 'commander' | 'contact' | 'cart' | 'login' | 'register' | 'profile' | 'edit-profile';
 
 // 2. Statut de commande
 export type OrderStatus = 'En attente' | 'En traitement' | 'Prête' | 'Livrée';
@@ -14,6 +14,13 @@ export const ProductTypeIcon = {
 };
 
 export type IconName = keyof typeof ProductTypeIcon;
+
+export interface GeneratePresignedUrlDto {
+    userId: string;
+    orderId: string;
+    fileType: string;
+    originalName: string;
+}
 
 export interface LoginDto {
     email: string;
@@ -40,12 +47,14 @@ export interface ProductDto {
 
 // 3. Interface Utilisateur
 export interface User {
-    id?: string;
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
-    phone?: string;
-    address?: string;
+    phone: string;
+    address: string;
+    zipCode: string;
+    city: string;
 }
 
 export interface UserContext {

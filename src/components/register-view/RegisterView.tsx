@@ -4,7 +4,7 @@ import {ManagerService} from "../../services/ManagerService";
 import {Loader, Server} from "lucide-react";
 
 export const RegisterView = ({ onRegisterSuccess, setActiveTab }: { onRegisterSuccess: any, setActiveTab: any }) => {
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '', phone: '' });
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '', phone: '', address: '', zipCode: '', city: '' });
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -17,7 +17,10 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab }: { onRegisterSu
             lastName: formData.lastName,
             email: formData.email,
             password: formData.password,
-            phone: formData.phone
+            phone: formData.phone,
+            address: formData.address,
+            zipCode: formData.zipCode,
+            city: formData.city,
         };
 
         const createdUser = await ManagerService.getInstance().registerUser(newUserInput);
@@ -71,6 +74,37 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab }: { onRegisterSu
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Adresse</label>
+                        <input
+                            type="text"
+                            required
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
+                            value={formData.address}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Code Postale</label>
+                        <input
+                            type="text"
+                            required
+                            pattern="[0-9][1-9]{4}"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
+                            value={formData.zipCode}
+                            onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Ville</label>
+                        <input
+                            type="text"
+                            required
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
+                            value={formData.city}
+                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         />
                     </div>
                     <div>

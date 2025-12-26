@@ -9,20 +9,18 @@ import { Footer } from './components/footer/Footer';
 import { LoginView } from './components/login-view/LoginView';
 import { ProfileView } from './components/profile-view/ProfileView';
 import { RegisterView } from './components/register-view/RegisterView';
-// import logo from './logo.svg';
 import './App.css';
 import {
     AuthResponse,
     CartItem,
-    LoginDto,
     Order,
     ProductData,
-    RegisterDto,
     Tab,
     User,
     UserContext
 } from "./constants/Interfaces";
 import {ManagerService} from "./services/ManagerService";
+import {EditProfileView} from "./components/edit-profile-view/EditProfileView";
 
 function App() {
     const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -35,16 +33,11 @@ function App() {
         const manager = ManagerService.getInstance();
         manager.getProducts().then(setProducts);
 
-        // --- RESTAURATION SÉCURISÉE DE SESSION VIA TOKEN ---
         const checkSession = async () => {
-            try {
-                // On vérifie le token auprès du "serveur" (simulation)
-                const user = await manager.verifyToken();
+            const user = await manager.verifyToken();
 
+            if (user != null) {
                 setCurrentUser(user);
-
-            } catch (e) {
-                console.error("Session invalide:", e);
             }
         };
 
@@ -70,8 +63,6 @@ function App() {
         setTimeout(() => notification.remove(), 2500);
     };
 
-    // --- LOGIC AUTHENTIFICATION ---
-
     const handleLoginSuccess = (authResponse: AuthResponse) => {
         setCurrentUser(authResponse.user);
         setActiveTab('profile');
@@ -79,19 +70,16 @@ function App() {
     };
 
     const handleRegisterSuccess = (user: User) => {
-        // Pour l'instant l'inscription ne connecte pas auto (on pourrait le faire)
         setActiveTab('login');
         showNotification("Compte créé ! Veuillez vous connecter.");
     };
 
     const handleLogout = async () => {
         try {
-            // MODIFIÉ : On demande au serveur de détruire le cookie
             await ManagerService.getInstance().logout();
         } catch (error) {
             console.error("Erreur lors du logout", error);
         } finally {
-            // Quoi qu'il arrive, on nettoie le front
             setCurrentUser(null);
             setOrders([]);
             setActiveTab('home');
@@ -102,14 +90,9 @@ function App() {
     const handleCheckout = async () => {
         if (!currentUser) return;
 
-        // MODIFIÉ : Plus de vérification de token manuel
-        // Si currentUser est là, on suppose que la session (cookie) est valide.
-
         try {
             const total = cart.reduce((acc, item) => acc + item.price, 0);
 
-            // MODIFIÉ : On ne passe plus le token en argument !
-            // La méthode createOrder doit utiliser credentials: 'include' (ou withCredentials)
             const newOrder = await ManagerService.getInstance().createOrder(cart, total);
 
             setOrders([newOrder, ...orders]);
@@ -120,25 +103,21 @@ function App() {
             console.error("Erreur commande", e);
             showNotification("Erreur lors de la commande. Êtes-vous connecté ?");
         }
-        // if (!currentUser) return;
-        //
-        // // On récupère le token pour authentifier la requête
-        // const token = localStorage.getItem('token');
-        // if (!token) {
-        //     handleLogout();
-        //     return;
-        // }
-        //
-        // const total = cart.reduce((acc, item) => acc + item.price, 0);
-        // const newOrder = await ManagerService.getInstance().createOrder(token, cart, total);
-        // setOrders([newOrder, ...orders]);
-        // setCart([]);
-        // setActiveTab('profile');
-        // showNotification("Commande enregistrée !");
+    };
+
+    const handleUpdateProfile = async (updatedUser: User) => {
+        try {
+            const user = await ManagerService.getInstance().updateUser(updatedUser);
+            setCurrentUser(user as UserContext);
+            setActiveTab('profile');
+            showNotification("Profil mis à jour !");
+        } catch (error) {
+            showNotification("Erreur lors de la mise à jour.");
+        }
     };
 
     // Filtre les commandes pour l'utilisateur actuel
-    const userOrders = orders.filter((o: any) => o.userId === currentUser?.id);
+    // const userOrders = orders.filter((o: any) => o.userId === currentUser?.id);
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
@@ -160,7 +139,7 @@ function App() {
 
                 {activeTab === 'services' && <ServicesSection products={products} />}
 
-                {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} products={products} />}
+                {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />}
 
                 {activeTab === 'contact' && <ContactSection />}
 
@@ -182,6 +161,16 @@ function App() {
                     <ProfileView
                         currentUser={currentUser}
                         orders={orders}
+                        onLogout={handleLogout}
+                        setActiveTab={setActiveTab}
+                        onEditProfile={() => setActiveTab('edit-profile')}
+                    />
+                )}
+                {activeTab === 'edit-profile' && currentUser && (
+                    <EditProfileView
+                        currentUser={currentUser}
+                        onSave={handleUpdateProfile}
+                        onCancel={() => setActiveTab('profile')}
                         onLogout={handleLogout}
                     />
                 )}

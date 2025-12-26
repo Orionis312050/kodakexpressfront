@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Upload, Star } from 'lucide-react';
 
-export const OrderSection = ({ onAddToCart, products }: { onAddToCart: any, products: any[] }) => {
+export const OrderSection = ({ onAddToCart, products, currentUser, setActiveTab }: { onAddToCart: any, products: any[], currentUser: any, setActiveTab: any }) => {
     const [uploadProgress, setUploadProgress] = useState<number>(0);
     const [isUploading, setIsUploading] = useState<boolean>(false);
+
+    if (!currentUser) {
+        setActiveTab('login');
+    }
 
     const handleUpload = () => {
         if (isUploading) return;

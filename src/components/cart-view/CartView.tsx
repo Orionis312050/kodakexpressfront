@@ -4,6 +4,10 @@ import { BRAND_COLORS } from '../../constants/Constants';
 export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFromCart }: { cart: any, setActiveTab: any, currentUser: any, onCheckout: any, removeFromCart:any }) => {
     const calculateTotal = (): string => cart.reduce((acc: any, item: any) => acc + item.price, 0).toFixed(2);
 
+    if (!currentUser) {
+        setActiveTab('login');
+    }
+
     return (
         <div className="max-w-3xl mx-auto px-4 py-12">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
