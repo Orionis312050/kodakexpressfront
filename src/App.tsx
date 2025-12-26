@@ -13,6 +13,7 @@ import './App.css';
 import {
     AuthResponse,
     CartItem,
+    LocationBrowser,
     Order,
     ProductData,
     Tab,
@@ -28,6 +29,8 @@ function App() {
     const [currentUser, setCurrentUser] = useState<UserContext | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [products, setProducts] = useState<ProductData[]>([]);
+    const [location, setLocation] = useState<LocationBrowser | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const manager = ManagerService.getInstance();
@@ -42,6 +45,26 @@ function App() {
         };
 
         checkSession();
+    }, []);
+
+    useEffect(() => {
+        const fetchLocation = async () => {
+            try {
+                // Appel à une API publique de géolocalisation IP
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+
+                console.log(data);
+
+                setLocation(data as LocationBrowser);
+            } catch (error) {
+                console.error("Erreur lors de la récupération de la localisation IP:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLocation();
     }, []);
 
     const addToCart = (item: CartItem) => {
@@ -155,7 +178,7 @@ function App() {
 
                 {activeTab === 'login' && <LoginView onLoginSuccess={handleLoginSuccess} setActiveTab={setActiveTab} />}
 
-                {activeTab === 'register' && <RegisterView onRegisterSuccess={handleRegisterSuccess} setActiveTab={setActiveTab} />}
+                {activeTab === 'register' && <RegisterView onRegisterSuccess={handleRegisterSuccess} setActiveTab={setActiveTab} location={location} />}
 
                 {activeTab === 'profile' && currentUser && (
                     <ProfileView
@@ -172,6 +195,7 @@ function App() {
                         onSave={handleUpdateProfile}
                         onCancel={() => setActiveTab('profile')}
                         onLogout={handleLogout}
+                        location={location}
                     />
                 )}
             </main>

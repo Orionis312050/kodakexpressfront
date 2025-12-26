@@ -1,9 +1,9 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {User} from "../../constants/Interfaces";
 import {ArrowLeft, Loader, Loader2, Save, Settings} from "lucide-react";
 import {ManagerService} from "../../services/ManagerService";
 
-export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout }: { currentUser: any, onSave: any, onCancel: any, onLogout: any}) => {
+export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, location }: { currentUser: any, onSave: any, onCancel: any, onLogout: any, location: any}) => {
     const [fullUser, setFullUser] = useState<User | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
@@ -18,6 +18,7 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout }: { c
 
     const [suggestions, setSuggestions] = useState([]); // Liste des suggestions
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const suggestionRef = useRef<HTMLDivElement>(null);
 
     const handleAddressChange = async (e: any) => {
         const val = e.target.value;
@@ -26,7 +27,7 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout }: { c
         // On cherche seulement si l'utilisateur a tapé plus de 3 caractères
         if (val.length > 3) {
             try {
-                const response = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(val)}&limit=5`);
+                const response = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(val)}&lat=${encodeURIComponent(location.latitude)}&lon=${encodeURIComponent(location.longitude)}&limit=15&index=address`);
                 const data = await response.json();
                 setSuggestions(data.features);
                 setShowSuggestions(true);
@@ -88,6 +89,19 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout }: { c
             });
         }
     }, [fullUser]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (suggestionRef.current && !suggestionRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -197,7 +211,7 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout }: { c
                         />
                     </div>
 
-                    <div>
+                    <div ref={suggestionRef}>
                         <label className="block text-sm font-medium text-gray-700">Adresse</label>
                         <input
                             type="text"
@@ -205,36 +219,17 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout }: { c
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                             value={formData.address}
                             onChange={handleAddressChange}
+                            onFocus={() => formData.address.length > 3 && setShowSuggestions(true)}
                             autoComplete="off"
                             placeholder="123 Rue de l'Exemple"
                         />
                         {showSuggestions && suggestions.length > 0 && (
-                            <ul style={{
-                                position: 'absolute',     // C'est ça qui fait "flotter" la liste
-                                top: '100%',              // Juste en dessous du champ
-                                left: 0,
-                                right: 0,
-                                zIndex: 1000,             // Pour passer au dessus des autres champs
-                                background: 'white',
-                                border: '1px solid #ddd',
-                                borderRadius: '0 0 4px 4px',
-                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                                listStyle: 'none',
-                                margin: 0,
-                                padding: 0,
-                                maxHeight: '200px',
-                                overflowY: 'auto'
-                            }}>
+                            <ul className="w-full relative bg-white border border-opacity-10 border-gray-500 border-solid rounded-b z-50 shadow list-none m-0 p-0 max-h-52 overflow-y-auto">
                                 {suggestions.map((item: any) => (
                                     <li
+                                        className="py-2.5 px-4 cursor-pointer border-b border-gray-50 border-solid text-sm"
                                         key={item.properties.id}
                                         onClick={() => handleSelectSuggestion(item)}
-                                        style={{
-                                            padding: '10px 15px',
-                                            cursor: 'pointer',
-                                            borderBottom: '1px solid #f0f0f0',
-                                            fontSize: '14px'
-                                        }}
                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
                                     >
