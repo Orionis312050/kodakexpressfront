@@ -4,16 +4,14 @@ import {ManagerService} from "../../services/ManagerService";
 import {LoginDto} from "../../constants/Interfaces";
 import {Loader, ShieldCheck} from "lucide-react";
 
-export const LoginView = ({ onLoginSuccess, setActiveTab }: { onLoginSuccess: any, setActiveTab: any }) => {
+export const LoginView = ({ onLoginSuccess, setActiveTab, showNotification }: { onLoginSuccess: any, setActiveTab: any, showNotification: any }) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError('');
 
         try {
             const loginDto: LoginDto = { email, password };
@@ -23,7 +21,7 @@ export const LoginView = ({ onLoginSuccess, setActiveTab }: { onLoginSuccess: an
 
             onLoginSuccess(authResponse);
         } catch (err: any) {
-            setError(err.message || "Erreur lors de la connexion.");
+            showNotification(err.message || "Erreur lors de la connexion.", 'ERROR');
         } finally {
             setIsLoading(false);
         }
@@ -42,7 +40,6 @@ export const LoginView = ({ onLoginSuccess, setActiveTab }: { onLoginSuccess: an
                     <p>Pass : <span className="font-mono bg-blue-100 px-1 rounded">123456</span></p>
                 </div>
 
-                {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">{error}</div>}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>

@@ -1,7 +1,7 @@
 import {ShoppingCart, Image, ChevronRight, X} from 'lucide-react';
 import { BRAND_COLORS } from '../../constants/Constants';
 
-export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFromCart }: { cart: any, setActiveTab: any, currentUser: any, onCheckout: any, removeFromCart:any }) => {
+export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFromCart, showNotification }: { cart: any, setActiveTab: any, currentUser: any, onCheckout: any, removeFromCart:any, showNotification: any }) => {
     const calculateTotal = (): string => cart.reduce((acc: any, item: any) => acc + item.price, 0).toFixed(2);
 
     if (!currentUser) {

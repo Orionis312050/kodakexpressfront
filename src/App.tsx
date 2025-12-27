@@ -1,14 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import { Header } from './components/header/Header';
-import { Hero } from './components/hero/Hero';
-import { ServicesSection } from './components/services-section/ServicesSection';
-import { OrderSection } from './components/order-section/OrderSection';
-import { ContactSection } from './components/contact-section/ContactSection';
-import { CartView } from './components/cart-view/CartView';
-import { Footer } from './components/footer/Footer';
-import { LoginView } from './components/login-view/LoginView';
-import { ProfileView } from './components/profile-view/ProfileView';
-import { RegisterView } from './components/register-view/RegisterView';
+import { Hero } from './elements/hero/Hero';
+import { ServicesSection } from './elements/services-section/ServicesSection';
+import { OrderSection } from './elements/order-section/OrderSection';
+import { ContactSection } from './elements/contact-section/ContactSection';
+import { CartView } from './elements/cart-view/CartView';
+import { Footer } from './elements/footer/Footer';
+import { LoginView } from './elements/login-view/LoginView';
+import { ProfileView } from './elements/profile-view/ProfileView';
+import { RegisterView } from './elements/register-view/RegisterView';
 import './App.css';
 import {
     AuthResponse,
@@ -21,7 +20,10 @@ import {
     UserContext
 } from "./constants/Interfaces";
 import {ManagerService} from "./services/ManagerService";
-import {EditProfileView} from "./components/edit-profile-view/EditProfileView";
+import {EditProfileView} from "./elements/edit-profile-view/EditProfileView";
+import {Toaster} from "./components/ui/sonner";
+import { toast } from "sonner"
+import {Header} from "./elements/header/Header";
 
 function App() {
     const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -69,7 +71,7 @@ function App() {
 
     const addToCart = (item: CartItem) => {
         setCart([...cart, item]);
-        showNotification(`${item.name} ajouté !`);
+        showNotification(`${item.name} ajouté !`, 'SUCCESS');
     };
 
     const removeFromCart = (index: number) => {
@@ -78,23 +80,36 @@ function App() {
         setCart(newCart);
     };
 
-    const showNotification = (message: string) => {
-        const notification = document.createElement('div');
-        notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 animate-bounce flex items-center gap-2';
-        notification.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> ${message}`;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2500);
+    const showNotification = (message: string, messageType: 'SUCCESS' | 'ERROR' | 'LOADING' | 'INFO' | 'WARNING') => {
+        switch (messageType) {
+            case 'SUCCESS':
+                toast.success(message);
+                break;
+            case 'ERROR':
+                toast.error(message);
+                break;
+            case 'LOADING':
+                toast.loading(message);
+                break;
+            case 'WARNING':
+                toast.warning(message);
+                break;
+            default:
+            case 'INFO':
+                toast.info(message);
+                break;
+        }
     };
 
     const handleLoginSuccess = (authResponse: AuthResponse) => {
         setCurrentUser(authResponse.user);
-        setActiveTab('profile');
-        showNotification(`Bienvenue ${authResponse.user.firstName} !`);
+        setActiveTab('home');
+        showNotification(`Bienvenue ${authResponse.user.firstName} !`, 'INFO');
     };
 
     const handleRegisterSuccess = (user: User) => {
         setActiveTab('login');
-        showNotification("Compte créé ! Veuillez vous connecter.");
+        showNotification("Compte créé ! Veuillez vous connecter.", 'SUCCESS');
     };
 
     const handleLogout = async () => {
@@ -106,7 +121,7 @@ function App() {
             setCurrentUser(null);
             setOrders([]);
             setActiveTab('home');
-            showNotification("Déconnecté.");
+            showNotification("Déconnecté.", 'SUCCESS');
         }
     };
 
@@ -121,10 +136,10 @@ function App() {
             setOrders([newOrder, ...orders]);
             setCart([]);
             setActiveTab('profile');
-            showNotification("Commande enregistrée !");
+            showNotification("Commande enregistrée !", 'SUCCESS');
         } catch (e) {
             console.error("Erreur commande", e);
-            showNotification("Erreur lors de la commande. Êtes-vous connecté ?");
+            showNotification("Erreur lors de la commande. Êtes-vous connecté ?", 'ERROR');
         }
     };
 
@@ -133,9 +148,9 @@ function App() {
             const user = await ManagerService.getInstance().updateUser(updatedUser);
             setCurrentUser(user as UserContext);
             setActiveTab('profile');
-            showNotification("Profil mis à jour !");
+            showNotification("Profil mis à jour !", 'SUCCESS');
         } catch (error) {
-            showNotification("Erreur lors de la mise à jour.");
+            showNotification("Erreur lors de la mise à jour.", 'ERROR');
         }
     };
 
@@ -156,13 +171,13 @@ function App() {
                 {activeTab === 'home' && (
                     <>
                         <Hero setActiveTab={setActiveTab} />
-                        <ServicesSection products={products} />
+                        <ServicesSection products={products} showNotification={showNotification} />
                     </>
                 )}
 
-                {activeTab === 'services' && <ServicesSection products={products} />}
+                {activeTab === 'services' && <ServicesSection products={products} showNotification={showNotification} />}
 
-                {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />}
+                {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} products={products} setActiveTab={setActiveTab} currentUser={currentUser} showNotification={showNotification} />}
 
                 {activeTab === 'contact' && <ContactSection />}
 
@@ -173,12 +188,13 @@ function App() {
                         currentUser={currentUser}
                         onCheckout={handleCheckout}
                         removeFromCart={removeFromCart}
+                        showNotification={showNotification}
                     />
                 )}
 
-                {activeTab === 'login' && <LoginView onLoginSuccess={handleLoginSuccess} setActiveTab={setActiveTab} />}
+                {activeTab === 'login' && <LoginView onLoginSuccess={handleLoginSuccess} setActiveTab={setActiveTab} showNotification={showNotification} />}
 
-                {activeTab === 'register' && <RegisterView onRegisterSuccess={handleRegisterSuccess} setActiveTab={setActiveTab} location={location} />}
+                {activeTab === 'register' && <RegisterView onRegisterSuccess={handleRegisterSuccess} setActiveTab={setActiveTab} location={location} showNotification={showNotification} />}
 
                 {activeTab === 'profile' && currentUser && (
                     <ProfileView
@@ -187,6 +203,7 @@ function App() {
                         onLogout={handleLogout}
                         setActiveTab={setActiveTab}
                         onEditProfile={() => setActiveTab('edit-profile')}
+                        showNotification={showNotification}
                     />
                 )}
                 {activeTab === 'edit-profile' && currentUser && (
@@ -196,8 +213,10 @@ function App() {
                         onCancel={() => setActiveTab('profile')}
                         onLogout={handleLogout}
                         location={location}
+                        showNotification={showNotification}
                     />
                 )}
+                <Toaster />
             </main>
 
             <Footer setActiveTab={setActiveTab} />

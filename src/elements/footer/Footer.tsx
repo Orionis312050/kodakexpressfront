@@ -16,7 +16,7 @@ export const Footer = ({ setActiveTab }: { setActiveTab: any }) => (
                     <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Liens Rapides</h4>
                     <ul className="mt-4 space-y-2">
                         <li><button onClick={() => setActiveTab('services')} className="text-gray-400 hover:text-white transition-colors">Nos Services</button></li>
-                        <li><button onClick={() => setActiveTab('contact')} className="text-gray-400 hover:text-white transition-colors">Trouver un magasin</button></li>
+                        <li><button onClick={() => setActiveTab('contact')} className="text-gray-400 hover:text-white transition-colors">Trouver le magasin</button></li>
                         <li><button onClick={() => setActiveTab('commander')} className="text-gray-400 hover:text-white transition-colors">Commander en ligne</button></li>
                     </ul>
                 </div>

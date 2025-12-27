@@ -3,7 +3,7 @@ import {User} from "../../constants/Interfaces";
 import {ManagerService} from "../../services/ManagerService";
 import {useEffect, useState} from "react";
 
-export const ProfileView = ({ currentUser, orders, onLogout, setActiveTab, onEditProfile }: { currentUser: any, orders: any, onLogout: any, setActiveTab:any, onEditProfile: any }) => {
+export const ProfileView = ({ currentUser, orders, onLogout, setActiveTab, onEditProfile, showNotification }: { currentUser: any, orders: any, onLogout: any, setActiveTab:any, onEditProfile: any, showNotification: any }) => {
     const [fullUser, setFullUser] = useState<User | undefined>(undefined);
     const [loading, setLoading] = useState(true);
 

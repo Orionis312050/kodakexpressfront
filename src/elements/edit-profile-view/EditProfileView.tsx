@@ -1,40 +1,20 @@
-import React, {useRef, useState} from 'react';
-import {RegisterDto} from '../../constants/Interfaces';
+import {useEffect, useRef, useState} from "react";
+import {User} from "../../constants/Interfaces";
+import {ArrowLeft, Loader, Loader2, Save, Settings} from "lucide-react";
 import {ManagerService} from "../../services/ManagerService";
-import {Loader, Server} from "lucide-react";
 
-export const RegisterView = ({ onRegisterSuccess, setActiveTab, location }: { onRegisterSuccess: any, setActiveTab: any, location: any }) => {
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '', phone: '', address: '', zipCode: '', city: '' });
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string>('');
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-
-        if (formData.password !== formData.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas.');
-            return;
-        }
-
-        setIsLoading(true);
-
-        const newUserInput: RegisterDto = {
-            id: 'temp-id',
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.phone,
-            address: formData.address,
-            zipCode: formData.zipCode,
-            city: formData.city,
-        };
-
-        const createdUser = await ManagerService.getInstance().registerUser(newUserInput);
-        setIsLoading(false);
-        onRegisterSuccess(createdUser);
-    };
+export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, location, showNotification }: { currentUser: any, onSave: any, onCancel: any, onLogout: any, location: any, showNotification: any}) => {
+    const [fullUser, setFullUser] = useState<User | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        address: "",
+        zipCode: "",
+        city: ""
+    });
 
     const [suggestions, setSuggestions] = useState([]); // Liste des suggestions
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -66,8 +46,6 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab, location }: { on
             lastName: formData.lastName,
             email: formData.email,
             phone: formData.phone,
-            password: formData.password,
-            confirmPassword: formData.confirmPassword,
             address: suggestion.properties.name,          // La rue (ex: 10 Rue de la Paix)
             zipCode: suggestion.properties.postcode,   // Le CP (ex: 75002)
             city: suggestion.properties.city             // La city (ex: Paris)
@@ -82,21 +60,108 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab, location }: { on
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await ManagerService.getInstance().getUserByEmail(currentUser.email);
+                setFullUser(user);
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'utilisateur", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, [currentUser.email]);
+
+    useEffect(() => {
+        if (fullUser) {
+            console.log("fullUser", fullUser);
+            setFormData({
+                firstName: fullUser.firstName || '',
+                lastName: fullUser.lastName || '',
+                email: fullUser.email || '',
+                phone: fullUser.phone || '',
+                address: fullUser.address || '',
+                zipCode: fullUser.zipCode || '',
+                city: fullUser.city || ''
+            });
+        }
+    }, [fullUser]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (suggestionRef.current && !suggestionRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true); // On remet le loading le temps de la sauvegarde
+
+        // On construit l'objet User mis à jour
+        // Note: J'utilise fullUser comme base plutôt que currentUser pour être sûr d'avoir toutes les props
+        const updatedUser: User = {
+            ...fullUser!, // Le '!' assure à TS que fullUser existe ici
+            ...formData   // On écrase avec les nouvelles données du formulaire
+        };
+
+        try {
+            await onSave(updatedUser);
+        } catch (error) {
+            console.error("Erreur de sauvegarde", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="animate-spin text-yellow-500" size={48} />
+            </div>
+        );
+    }
+
+    if (!fullUser) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Erreur</h2>
+                    <p className="text-gray-600 mb-6">Impossible de charger les informations de votre profil.</p>
+                    <button
+                        onClick={onLogout}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+                    >
+                        Retour à la connexion
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="max-w-md mx-auto py-12 px-4">
+        <div className="max-w-2xl mx-auto py-12 px-4">
             <div className="bg-white shadow-lg rounded-lg p-8">
-                <h2 className="text-2xl font-bold text-center mb-6 flex items-center justify-center gap-2">
-                    <Server className="text-green-600" size={24} /> Inscription
-                </h2>
+                <div className="flex items-center gap-4 mb-6">
+                    <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-full text-gray-600">
+                        <ArrowLeft size={24} />
+                    </button>
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <Settings className="text-gray-600" size={24} /> Modifier mes informations
+                    </h2>
+                </div>
 
-                {error && (
-                    <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-md border border-red-200">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Prénom</label>
                             <input
@@ -120,6 +185,7 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab, location }: { on
                             />
                         </div>
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
                         <input
@@ -131,17 +197,20 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab, location }: { on
                             onChange={handleChange}
                         />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Téléphone</label>
                         <input
                             type="tel"
                             name="phone"
                             pattern="[0-9]{10}"
+                            required
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                             value={formData.phone}
                             onChange={handleChange}
                         />
                     </div>
+
                     <div ref={suggestionRef}>
                         <label className="block text-sm font-medium text-gray-700">Adresse</label>
                         <input
@@ -197,35 +266,23 @@ export const RegisterView = ({ onRegisterSuccess, setActiveTab, location }: { on
                             placeholder="Paris"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
-                        <input
-                            type="password"
-                            name="password"
-                            required
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
-                            value={formData.password}
-                            onChange={handleChange}
-                        />
+
+                    <div className="flex justify-end gap-4">
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Annuler
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex items-center gap-2 px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                        >
+                            {loading ? <Loader className="animate-spin" size={18} /> : <><Save size={18} /> Enregistrer</>}
+                        </button>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            required
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-yellow-400 hover:bg-yellow-500 disabled:opacity-50"
-                    >
-                        {isLoading ? <Loader className="animate-spin" size={20} /> : "S'inscrire"}
-                    </button>
                 </form>
             </div>
         </div>

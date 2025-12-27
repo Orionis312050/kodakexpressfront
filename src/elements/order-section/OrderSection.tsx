@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, Star } from 'lucide-react';
 
-export const OrderSection = ({ onAddToCart, products, currentUser, setActiveTab }: { onAddToCart: any, products: any[], currentUser: any, setActiveTab: any }) => {
+export const OrderSection = ({ onAddToCart, products, currentUser, setActiveTab, showNotification }: { onAddToCart: any, products: any[], currentUser: any, setActiveTab: any, showNotification: any }) => {
     const [uploadProgress, setUploadProgress] = useState<number>(0);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 

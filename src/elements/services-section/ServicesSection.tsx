@@ -3,7 +3,7 @@ import JsxParser from "react-jsx-parser";
 import { ProductTypeIcon } from "../../constants/Interfaces";
 import { IconName } from '../../constants/Interfaces';
 
-export const ServicesSection = ({ products }: {products: any[]}) => {
+export const ServicesSection = ({ products, showNotification }: {products: any[], showNotification: any}) => {
 
     return (
         <div className="py-12 bg-gray-50">
