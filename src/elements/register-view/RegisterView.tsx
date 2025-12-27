@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {RegisterDto} from '../../constants/Interfaces';
+import type {RegisterDto} from '../../constants/Interfaces';
 import {ManagerService} from "../../services/ManagerService";
 import {Check} from "lucide-react";
 

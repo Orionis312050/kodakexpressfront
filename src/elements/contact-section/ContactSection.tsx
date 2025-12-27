@@ -1,12 +1,12 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; // ⚠️ Très important : le CSS de Leaflet
-import L, {LatLngExpression} from 'leaflet';
+import L, {type LatLngExpression} from 'leaflet';
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
     iconSize: [25, 41],

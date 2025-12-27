@@ -1,5 +1,5 @@
 import {Loader2, LogOut, Package, Settings, ShieldCheck, UserIcon} from 'lucide-react';
-import {User} from "../../constants/Interfaces";
+import type {User} from "../../constants/Interfaces";
 import {ManagerService} from "../../services/ManagerService";
 import {useEffect, useState} from "react";
 

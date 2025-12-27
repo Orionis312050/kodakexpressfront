@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Menu, ShoppingCart, X, UserIcon, LogOut} from "lucide-react";
 import {BRAND_COLORS, MENU_ITEMS } from "../../constants/Constants";
-import {User, UserContext} from "../../constants/Interfaces";
+import type {UserContext} from "../../constants/Interfaces";
 
 export const Header = ({ activeTab, setActiveTab, cartCount, currentUser, onLogout }: { activeTab: any, setActiveTab: any, cartCount: any, currentUser: UserContext | null, onLogout: any }) => {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);

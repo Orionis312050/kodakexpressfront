@@ -1,7 +1,7 @@
-import { BRAND_COLORS, SERVICES_DATA } from '../../constants/Constants';
+import { BRAND_COLORS } from '../../constants/Constants';
 import JsxParser from "react-jsx-parser";
 import { ProductTypeIcon } from "../../constants/Interfaces";
-import { IconName } from '../../constants/Interfaces';
+import type {IconName} from '../../constants/Interfaces';
 
 export const ServicesSection = ({ products, showNotification }: {products: any[], showNotification: any}) => {
 

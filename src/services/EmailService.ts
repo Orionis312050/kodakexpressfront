@@ -1,6 +1,7 @@
 // Email service for handling mail operations
 
-import { EmailPayload, EmailResponse } from '../constants/Interfaces';
+// Email service for handling mail operations
+import type {EmailPayload, EmailResponse} from '../constants/Interfaces';
 
 export class EmailService {
   private apiUrl: string = process.env.REACT_APP_API_URL || 'http://localhost:5000';

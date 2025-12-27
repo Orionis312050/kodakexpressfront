@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react'
 import { Hero } from './elements/hero/Hero';
 import { ServicesSection } from './elements/services-section/ServicesSection';
 import { OrderSection } from './elements/order-section/OrderSection';
@@ -9,7 +9,7 @@ import { LoginView } from './elements/login-view/LoginView';
 import { ProfileView } from './elements/profile-view/ProfileView';
 import { RegisterView } from './elements/register-view/RegisterView';
 import './App.css';
-import {
+import type {
     AuthResponse,
     CartItem,
     LocationBrowser,
@@ -24,6 +24,7 @@ import {EditProfileView} from "./elements/edit-profile-view/EditProfileView";
 import {Toaster} from "./components/ui/sonner";
 import { toast } from "sonner"
 import {Header} from "./elements/header/Header";
+import './App.css'
 
 function App() {
     const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -154,9 +155,6 @@ function App() {
         }
     };
 
-    // Filtre les commandes pour l'utilisateur actuel
-    // const userOrders = orders.filter((o: any) => o.userId === currentUser?.id);
-
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
             <Header
@@ -224,4 +222,4 @@ function App() {
     );
 }
 
-export default App;
+export default App

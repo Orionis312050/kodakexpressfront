@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {User} from "../../constants/Interfaces";
+import type {User} from "../../constants/Interfaces";
 import {ArrowLeft, Loader, Loader2, Save, Settings} from "lucide-react";
 import {ManagerService} from "../../services/ManagerService";
 

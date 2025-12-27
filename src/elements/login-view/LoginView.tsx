@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BRAND_COLORS } from '../../constants/Constants';
 import {ManagerService} from "../../services/ManagerService";
-import {LoginDto} from "../../constants/Interfaces";
+import type {LoginDto} from "../../constants/Interfaces";
 import {Loader, ShieldCheck} from "lucide-react";
 
 export const LoginView = ({ onLoginSuccess, setActiveTab, showNotification }: { onLoginSuccess: any, setActiveTab: any, showNotification: any }) => {

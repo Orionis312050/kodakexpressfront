@@ -1,5 +1,5 @@
 import { Image, UserIcon, Gift, Film } from 'lucide-react';
-import { ServiceData, MenuItem } from './Interfaces';
+import type {ServiceData, MenuItem} from './Interfaces';
 
 export const BRAND_COLORS = {
     yellow: "bg-yellow-400",
