@@ -5,6 +5,7 @@ import type {Tab, UserContext} from "../../constants/Interfaces";
 
 export const Header = ({ activeTab, setActiveTab, cartCount, currentUser, onLogout }: { activeTab: Tab, setActiveTab: Dispatch<SetStateAction<Tab>>, cartCount: number, currentUser: UserContext | null, onLogout: () => void }) => {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+    console.log(currentUser);
 
     return (
         <nav className={`sticky top-0 z-40 ${BRAND_COLORS.yellow} shadow-md`}>

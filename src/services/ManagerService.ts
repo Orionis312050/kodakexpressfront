@@ -47,7 +47,12 @@ export class ManagerService {
             credentials: 'include'
         });
         if (!response.ok) return null;
-        return await response.json();
+
+        const test = await response.json();
+
+        console.log(test);
+
+        return test;
     }
 
     public async login(loginDto: LoginDto): Promise<UserContext | null> {
@@ -120,8 +125,18 @@ export class ManagerService {
             return null;
         }
 
-        const { password, ...userWithoutPassword } = await response.json();
-        return userWithoutPassword;
+        const fullUser = await response.json();
+
+        return {
+            id: fullUser.id,
+            firstName: fullUser.firstName,
+            lastName: fullUser.lastName,
+            email: fullUser.email,
+            phone: fullUser.phone,
+            address: fullUser.address,
+            zipCode: fullUser.zipCode,
+            city: fullUser.city,
+        };
     }
 
     public async getProducts(): Promise<ProductData[]> {
