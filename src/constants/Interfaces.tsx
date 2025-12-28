@@ -36,34 +36,64 @@ export interface AuthResponse {
     user: UserContext;
 }
 
-export interface LocationBrowser {
-    asn: string;
+export interface GeoSuggestCollection {
+    type: string;
+    features: GeoSuggest[];
+    query: string;
+}
+
+export interface GeoSuggest {
+    type: string;
+    properties: GeoSuggestProperties;
+    geometry: GeoSuggestGeometry;
+}
+
+export interface GeoSuggestProperties {
+    label: string;
+    id: string;
+    postcode: string;
     city: string;
+    district: string;
+    street: string;
+    housenumber: string;
+    citycode: string;
+    x: number;
+    y: number;
+    score: number;
+    name: string;
+    type: string;
+    _type: string;
+    contexte: string;
+    importance: string;
+}
+
+export interface GeoSuggestGeometry {
+    type: string;
+    coordinates: number[];
+}
+
+export interface LocationBrowser {
+    About_Us: string;
+    borders: string;
+    calling_code: string;
+    capital: string;
+    city: string;
+    connection: any;
+    continent: string;
     continent_code: string;
     country: string;
-    country_area: number;
-    country_calling_code: string;
-    country_capital: string;
     country_code: string;
-    country_code_iso3: string;
-    country_name: string;
-    country_population: number;
-    country_tld: string;
-    currency: string;
-    currency_name: string;
-    in_eu: boolean;
+    flag: any;
     ip: string;
-    languages: string;
+    is_eu: boolean;
     latitude: number;
     longitude: number;
-    network: string;
-    org: string;
     postal: string;
     region: string;
     region_code: string;
-    timezone: string;
-    utc_offset: string;
-    version: string;
+    success: boolean;
+    timezone: any;
+    type: string;
 }
 
 export interface ProductDto {

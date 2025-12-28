@@ -1,8 +1,10 @@
 import {ShoppingCart, Image, ChevronRight, X} from 'lucide-react';
 import { BRAND_COLORS } from '../../constants/Constants';
+import type {CartItem, Tab, UserContext} from "@/constants/Interfaces.tsx";
+import type {Dispatch, SetStateAction} from "react";
 
-export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFromCart, showNotification }: { cart: any, setActiveTab: any, currentUser: any, onCheckout: any, removeFromCart:any, showNotification: any }) => {
-    const calculateTotal = (): string => cart.reduce((acc: any, item: any) => acc + item.price, 0).toFixed(2);
+export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFromCart }: { cart: CartItem[], setActiveTab: Dispatch<SetStateAction<Tab>>, currentUser: UserContext | null, onCheckout: () => Promise<void>, removeFromCart: (index: number) => void }) => {
+    const calculateTotal = (): string => cart.reduce((acc: number, item: CartItem) => acc + item.price, 0).toFixed(2);
 
     if (!currentUser) {
         setActiveTab('login');
@@ -26,7 +28,7 @@ export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFr
             ) : (
                 <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
                     <ul className="divide-y divide-gray-200">
-                        {cart.map((item: any, idx: any) => (
+                        {cart.map((item: CartItem, idx: number) => (
                             <li key={idx} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
@@ -34,7 +36,7 @@ export const CartView = ({ cart, setActiveTab, currentUser, onCheckout, removeFr
                                     </div>
                                     <div>
                                         <span className="font-medium text-gray-900 block">{item.name}</span>
-                                        <p className="text-xs text-gray-500">Quantité: {item.quantity}</p>
+                                        <p className="text-xs text-gray-500">Quantité: 0</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">

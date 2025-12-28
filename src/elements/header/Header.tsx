@@ -1,9 +1,9 @@
-import {useState} from "react";
+import {type Dispatch, type SetStateAction, useState} from "react";
 import {Menu, ShoppingCart, X, UserIcon, LogOut} from "lucide-react";
 import {BRAND_COLORS, MENU_ITEMS } from "../../constants/Constants";
-import type {UserContext} from "../../constants/Interfaces";
+import type {Tab, UserContext} from "../../constants/Interfaces";
 
-export const Header = ({ activeTab, setActiveTab, cartCount, currentUser, onLogout }: { activeTab: any, setActiveTab: any, cartCount: any, currentUser: UserContext | null, onLogout: any }) => {
+export const Header = ({ activeTab, setActiveTab, cartCount, currentUser, onLogout }: { activeTab: Tab, setActiveTab: Dispatch<SetStateAction<Tab>>, cartCount: number, currentUser: UserContext | null, onLogout: () => void }) => {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
     return (

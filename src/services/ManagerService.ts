@@ -50,7 +50,7 @@ export class ManagerService {
         return await response.json();
     }
 
-    public async login(loginDto: LoginDto): Promise<User | null> {
+    public async login(loginDto: LoginDto): Promise<UserContext | null> {
         const response = await fetch(`${this.uri}customers/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -97,9 +97,9 @@ export class ManagerService {
             }
 
             // Le backend NestJS renvoie le résultat de l'insertion (ex: insertId)
-            const result = await response.json();
+            const result: User = await response.json();
             // On retourne l'objet utilisateur complet avec le nouvel ID généré par la DB
-            return { ...user, id: result.insertId || result.id };
+            return { ...user, id: result.id };
         }
         catch(error) {
             console.error(`[ManagerService] Erreur API: `, error);
@@ -146,9 +146,6 @@ export class ManagerService {
 
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Décodage simulé pour récupérer l'ID user depuis le token
-        const userId = ''; // Dans la réalité: req.user.id extrait du token
-
         return {
             id: Math.floor(Math.random() * 100000).toString(),
             status: 'En traitement',
@@ -156,10 +153,6 @@ export class ManagerService {
             items: [...items],
             total: total
         };
-    }
-
-    public async getUserOrders(token: string): Promise<Order[]> {
-        return [];
     }
 
     public async generateUploadUrl(data: GeneratePresignedUrlDto): Promise<{ uploadUrl: string; key: string }> {

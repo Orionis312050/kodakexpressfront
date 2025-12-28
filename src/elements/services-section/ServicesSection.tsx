@@ -1,9 +1,11 @@
 import { BRAND_COLORS } from '../../constants/Constants';
 import JsxParser from "react-jsx-parser";
-import { ProductTypeIcon } from "../../constants/Interfaces";
+import {type ProductData, ProductTypeIcon} from "../../constants/Interfaces";
 import type {IconName} from '../../constants/Interfaces';
 
-export const ServicesSection = ({ products, showNotification }: {products: any[], showNotification: any}) => {
+export const ServicesSection = ({ products, showNotification }: {products: ProductData[], showNotification: (message: string, messageType: 'SUCCESS' | 'ERROR' | 'LOADING' | 'INFO' | 'WARNING') => void}) => {
+
+    showNotification('Chargement des services...', 'LOADING');
 
     return (
         <div className="py-12 bg-gray-50">
@@ -16,7 +18,7 @@ export const ServicesSection = ({ products, showNotification }: {products: any[]
                 </div>
                 <div className="mt-10">
                     <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-                        {products.map((product: any) => (
+                        {products.map((product: ProductData) => (
                             <div key={product.id} className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-yellow-500 rounded-lg shadow-sm hover:shadow-lg transition-all duration-200">
                                 <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-md bg-yellow-400 text-red-600 mb-4">
                                     <JsxParser

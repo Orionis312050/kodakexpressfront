@@ -10,7 +10,6 @@ import { ProfileView } from './elements/profile-view/ProfileView';
 import { RegisterView } from './elements/register-view/RegisterView';
 import './App.css';
 import type {
-    AuthResponse,
     CartItem,
     LocationBrowser,
     Order,
@@ -25,6 +24,7 @@ import {Toaster} from "./components/ui/sonner";
 import { toast } from "sonner"
 import {Header} from "./elements/header/Header";
 import './App.css'
+import {SpinnerEmpty} from "@/components/ui/spinner.tsx";
 
 function App() {
     const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -54,7 +54,7 @@ function App() {
         const fetchLocation = async () => {
             try {
                 // Appel à une API publique de géolocalisation IP
-                const response = await fetch('https://ipapi.co/json/');
+                const response = await fetch('/api-ip/');
                 const data = await response.json();
 
                 console.log(data);
@@ -81,7 +81,7 @@ function App() {
         setCart(newCart);
     };
 
-    const showNotification = (message: string, messageType: 'SUCCESS' | 'ERROR' | 'LOADING' | 'INFO' | 'WARNING') => {
+    const showNotification = (message: string, messageType: 'SUCCESS' | 'ERROR' | 'LOADING' | 'INFO' | 'WARNING', loadingMessage: string = "Loading...", timer: number = 2000) => {
         switch (messageType) {
             case 'SUCCESS':
                 toast.success(message);
@@ -90,7 +90,17 @@ function App() {
                 toast.error(message);
                 break;
             case 'LOADING':
-                toast.loading(message);
+                toast.promise<{ name: string }>(
+                    () =>
+                        new Promise((resolve) =>
+                            setTimeout(() => resolve({ name: "Event" }), timer)
+                        ),
+                    {
+                        loading: loadingMessage,
+                        success: () => message,
+                        error: "Error",
+                    }
+                );
                 break;
             case 'WARNING':
                 toast.warning(message);
@@ -102,15 +112,15 @@ function App() {
         }
     };
 
-    const handleLoginSuccess = (authResponse: AuthResponse) => {
-        setCurrentUser(authResponse.user);
+    const handleLoginSuccess = (user: UserContext) => {
+        setCurrentUser(user);
         setActiveTab('home');
-        showNotification(`Bienvenue ${authResponse.user.firstName} !`, 'INFO');
+        showNotification(`Bienvenue ${user.firstName} !`, 'INFO');
     };
 
     const handleRegisterSuccess = (user: User) => {
         setActiveTab('login');
-        showNotification("Compte créé ! Veuillez vous connecter.", 'SUCCESS');
+        showNotification("Compte " + user.firstName + " créé ! Veuillez vous connecter.", 'SUCCESS');
     };
 
     const handleLogout = async () => {
@@ -151,9 +161,15 @@ function App() {
             setActiveTab('profile');
             showNotification("Profil mis à jour !", 'SUCCESS');
         } catch (error) {
-            showNotification("Erreur lors de la mise à jour.", 'ERROR');
+            showNotification("Erreur lors de la mise à jour. " + error, 'ERROR');
         }
     };
+
+    if (loading) {
+        return (
+            <SpinnerEmpty title="Chargement en cours..." description="Veuillez patienter." />
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
@@ -175,7 +191,7 @@ function App() {
 
                 {activeTab === 'services' && <ServicesSection products={products} showNotification={showNotification} />}
 
-                {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} products={products} setActiveTab={setActiveTab} currentUser={currentUser} showNotification={showNotification} />}
+                {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} setActiveTab={setActiveTab} currentUser={currentUser} />}
 
                 {activeTab === 'contact' && <ContactSection />}
 
@@ -186,7 +202,6 @@ function App() {
                         currentUser={currentUser}
                         onCheckout={handleCheckout}
                         removeFromCart={removeFromCart}
-                        showNotification={showNotification}
                     />
                 )}
 
@@ -201,7 +216,6 @@ function App() {
                         onLogout={handleLogout}
                         setActiveTab={setActiveTab}
                         onEditProfile={() => setActiveTab('edit-profile')}
-                        showNotification={showNotification}
                     />
                 )}
                 {activeTab === 'edit-profile' && currentUser && (
@@ -211,7 +225,6 @@ function App() {
                         onCancel={() => setActiveTab('profile')}
                         onLogout={handleLogout}
                         location={location}
-                        showNotification={showNotification}
                     />
                 )}
                 <Toaster />

@@ -1,9 +1,9 @@
 import {useEffect, useRef, useState} from "react";
-import type {User} from "../../constants/Interfaces";
+import type {GeoSuggest, LocationBrowser, User, UserContext} from "../../constants/Interfaces";
 import {ArrowLeft, Loader, Loader2, Save, Settings} from "lucide-react";
-import {ManagerService} from "../../services/ManagerService";
+import {ManagerService} from "@/services/ManagerService.ts";
 
-export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, location, showNotification }: { currentUser: any, onSave: any, onCancel: any, onLogout: any, location: any, showNotification: any}) => {
+export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, location }: { currentUser: UserContext, onSave: (updateUser: User) => Promise<void>, onCancel: () => void, onLogout: () => Promise<void>, location: LocationBrowser | null }) => {
     const [fullUser, setFullUser] = useState<User | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
@@ -16,18 +16,24 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, locat
         city: ""
     });
 
-    const [suggestions, setSuggestions] = useState([]); // Liste des suggestions
+    const [suggestions, setSuggestions] = useState<GeoSuggest[]>([]); // Liste des suggestions
     const [showSuggestions, setShowSuggestions] = useState(false);
     const suggestionRef = useRef<HTMLDivElement>(null);
 
-    const handleAddressChange = async (e: any) => {
+    const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setFormData({ ...formData, address: val }); // On met à jour ce que l'utilisateur voit
 
         // On cherche seulement si l'utilisateur a tapé plus de 3 caractères
         if (val.length > 3) {
             try {
-                const response = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(val)}&lat=${encodeURIComponent(location.latitude)}&lon=${encodeURIComponent(location.longitude)}&limit=15&index=address`);
+                let uri: string =`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(val)}`;
+                if (location != null) {
+                    uri = uri + `&lat=${encodeURIComponent(location.latitude)}&lon=${encodeURIComponent(location.longitude)}`;
+                }
+                uri = uri + `&limit=15&index=address`;
+
+                const response = await fetch(uri);
                 const data = await response.json();
                 setSuggestions(data.features);
                 setShowSuggestions(true);
@@ -39,7 +45,7 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, locat
         }
     };
 
-    const handleSelectSuggestion = (suggestion: any) => {
+    const handleSelectSuggestion = (suggestion: GeoSuggest) => {
         // On remplit tout le formulaire d'un coup
         setFormData({
             firstName: formData.firstName,
@@ -56,7 +62,7 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, locat
         setShowSuggestions(false);
     };
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -225,7 +231,7 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, locat
                         />
                         {showSuggestions && suggestions.length > 0 && (
                             <ul className="w-full relative bg-white border border-opacity-10 border-gray-500 border-solid rounded-b z-50 shadow list-none m-0 p-0 max-h-52 overflow-y-auto">
-                                {suggestions.map((item: any) => (
+                                {suggestions.map((item: GeoSuggest) => (
                                     <li
                                         className="py-2.5 px-4 cursor-pointer border-b border-gray-50 border-solid text-sm"
                                         key={item.properties.id}

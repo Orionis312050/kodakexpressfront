@@ -1,9 +1,9 @@
 import {Loader2, LogOut, Package, Settings, ShieldCheck, UserIcon} from 'lucide-react';
-import type {User} from "../../constants/Interfaces";
-import {ManagerService} from "../../services/ManagerService";
-import {useEffect, useState} from "react";
+import type {Order, Tab, User, UserContext} from "../../constants/Interfaces";
+import {ManagerService} from "@/services/ManagerService.ts";
+import {type Dispatch, type MouseEventHandler, type SetStateAction, useEffect, useState} from "react";
 
-export const ProfileView = ({ currentUser, orders, onLogout, setActiveTab, onEditProfile, showNotification }: { currentUser: any, orders: any, onLogout: any, setActiveTab:any, onEditProfile: any, showNotification: any }) => {
+export const ProfileView = ({ currentUser, orders, onLogout, setActiveTab, onEditProfile }: { currentUser: UserContext, orders: Order[], onLogout: () => Promise<void>, setActiveTab: Dispatch<SetStateAction<Tab>>, onEditProfile: MouseEventHandler<HTMLButtonElement> }) => {
     const [fullUser, setFullUser] = useState<User | undefined>(undefined);
     const [loading, setLoading] = useState(true);
 
@@ -114,16 +114,16 @@ export const ProfileView = ({ currentUser, orders, onLogout, setActiveTab, onEdi
                             </div>
                         ) : (
                             <ul className="divide-y divide-gray-200">
-                                {orders.map((order: any) => (
+                                {orders.map((order: Order) => (
                                     <li key={order.id} className="p-4 hover:bg-gray-50 transition">
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <p className="text-sm font-medium text-red-600">Commande #{order.id}</p>
-                                                <p className="text-xs text-gray-400">Date: {order.order_date}</p>
+                                                <p className="text-xs text-gray-400">Date: {order.date}</p>
                                             </div>
                                             <div className="text-right">
                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                             order.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                             order.status === 'Livrée' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                          }`}>
                           {order.status}
                         </span>

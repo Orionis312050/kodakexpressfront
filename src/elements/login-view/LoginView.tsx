@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, {type Dispatch, type SetStateAction, useState} from 'react';
 import { BRAND_COLORS } from '../../constants/Constants';
-import {ManagerService} from "../../services/ManagerService";
-import type {LoginDto} from "../../constants/Interfaces";
+import {ManagerService} from "@/services/ManagerService.ts";
+import type {LoginDto, Tab, UserContext} from "../../constants/Interfaces";
 import {Loader, ShieldCheck} from "lucide-react";
 
-export const LoginView = ({ onLoginSuccess, setActiveTab, showNotification }: { onLoginSuccess: any, setActiveTab: any, showNotification: any }) => {
+export const LoginView = ({ onLoginSuccess, setActiveTab, showNotification }: { onLoginSuccess: (user: UserContext) => void, setActiveTab: Dispatch<SetStateAction<Tab>>, showNotification:  (message: string, messageType: 'SUCCESS' | 'ERROR' | 'LOADING' | 'INFO' | 'WARNING') => void}) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -13,18 +13,17 @@ export const LoginView = ({ onLoginSuccess, setActiveTab, showNotification }: { 
         e.preventDefault();
         setIsLoading(true);
 
-        try {
-            const loginDto: LoginDto = { email, password };
+        const loginDto: LoginDto = { email, password };
 
-            // Appel API qui renvoie le Token + User
-            const authResponse = await ManagerService.getInstance().login(loginDto);
-
-            onLoginSuccess(authResponse);
-        } catch (err: any) {
-            showNotification(err.message || "Erreur lors de la connexion.", 'ERROR');
-        } finally {
-            setIsLoading(false);
+        const user = await ManagerService.getInstance().login(loginDto);
+        if (user) {
+            onLoginSuccess(user);
         }
+        else {
+            showNotification("Erreur lors de la connexion.", 'ERROR');
+        }
+
+        setIsLoading(false);
     };
 
     return (

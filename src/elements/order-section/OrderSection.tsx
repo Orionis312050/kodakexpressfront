@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import {type Dispatch, type SetStateAction, useState} from 'react';
 import { Upload, Star } from 'lucide-react';
+import type {CartItem, Tab, UserContext} from "@/constants/Interfaces.tsx";
 
-export const OrderSection = ({ onAddToCart, products, currentUser, setActiveTab, showNotification }: { onAddToCart: any, products: any[], currentUser: any, setActiveTab: any, showNotification: any }) => {
+export const OrderSection = ({ onAddToCart, currentUser, setActiveTab }: { onAddToCart: (item: CartItem) => void, currentUser: UserContext | null, setActiveTab: Dispatch<SetStateAction<Tab>> }) => {
     const [uploadProgress, setUploadProgress] = useState<number>(0);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
