@@ -149,6 +149,7 @@ export const RegisterView = ({ onRegisterSuccess, location }: { onRegisterSucces
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                                     value={formData.firstName}
                                     onChange={handleChange}
+                                    placeholder="John"
                                 />
                             </div>
                             <div>
@@ -160,6 +161,7 @@ export const RegisterView = ({ onRegisterSuccess, location }: { onRegisterSucces
                                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                                     value={formData.lastName}
                                     onChange={handleChange}
+                                    placeholder="Doe"
                                 />
                             </div>
                         </div>
@@ -172,6 +174,7 @@ export const RegisterView = ({ onRegisterSuccess, location }: { onRegisterSucces
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                                 value={formData.email}
                                 onChange={handleChange}
+                                placeholder="john.doe@mail.com"
                             />
                         </div>
                         <div>
@@ -183,62 +186,67 @@ export const RegisterView = ({ onRegisterSuccess, location }: { onRegisterSucces
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
                                 value={formData.phone}
                                 onChange={handleChange}
+                                placeholder="0123456789"
                             />
                         </div>
-                        <div ref={suggestionRef}>
-                            <label className="block text-sm font-medium text-gray-700">Adresse</label>
-                            <input
-                                type="text"
-                                name="address"
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
-                                value={formData.address}
-                                onChange={handleAddressChange}
-                                onFocus={() => formData.address.length > 3 && setShowSuggestions(true)}
-                                autoComplete="off"
-                                placeholder="123 Rue de l'Exemple"
-                            />
-                            {showSuggestions && suggestions.length > 0 && (
-                                <ul className="w-full relative bg-white border border-opacity-10 border-gray-500 border-solid rounded-b z-50 shadow list-none m-0 p-0 max-h-52 overflow-y-auto">
-                                    {suggestions.map((item: GeoSuggest) => (
-                                        <li
-                                            className="py-2.5 px-4 cursor-pointer border-b border-gray-50 border-solid text-sm"
-                                            key={item.properties.id}
-                                            onClick={() => handleSelectSuggestion(item)}
-                                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
-                                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
-                                        >
-                                            {/* On affiche le label complet (ex: 8 Rue de Londres 75009 Paris) */}
-                                            <strong>{item.properties.name}</strong> <span style={{color: '#666'}}>{item.properties.city}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Code Postale</label>
-                            <input
-                                type="text"
-                                name="zipCode"
-                                pattern="[1-9][0-9]{4}"
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
-                                value={formData.zipCode}
-                                onChange={handleChange}
-                                placeholder="75000"
-                            />
+                        <div className="relative mb-4">
+                            <div ref={suggestionRef}>
+                                <label className="block text-sm font-medium text-gray-700">Adresse</label>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
+                                    value={formData.address}
+                                    onChange={handleAddressChange}
+                                    onFocus={() => formData.address.length > 3 && setShowSuggestions(true)}
+                                    autoComplete="off"
+                                    placeholder="123 Rue de l'Exemple"
+                                />
+                                {showSuggestions && suggestions.length > 0 && (
+                                    <ul className="w-full relative bg-white border border-opacity-10 border-gray-500 border-solid rounded-b z-50 shadow list-none m-0 p-0 max-h-52 overflow-y-auto">
+                                        {suggestions.map((item: GeoSuggest) => (
+                                            <li
+                                                className="py-2.5 px-4 cursor-pointer border-b border-gray-50 border-solid text-sm"
+                                                key={item.properties.id}
+                                                onClick={() => handleSelectSuggestion(item)}
+                                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+                                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                            >
+                                                {/* On affiche le label complet (ex: 8 Rue de Londres 75009 Paris) */}
+                                                <strong>{item.properties.name}</strong> <span style={{color: '#666'}}>{item.properties.city}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Ville</label>
-                            <input
-                                type="text"
-                                name="city"
-                                required
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
-                                value={formData.city}
-                                onChange={handleChange}
-                                placeholder="Paris"
-                            />
+                        <div className="grid grid-cols-2 gap-5">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Code Postale</label>
+                                <input
+                                    type="text"
+                                    name="zipCode"
+                                    pattern="[1-9][0-9]{4}"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
+                                    value={formData.zipCode}
+                                    onChange={handleChange}
+                                    placeholder="75000"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Ville</label>
+                                <input
+                                    type="text"
+                                    name="city"
+                                    required
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    placeholder="Paris"
+                                />
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Mot de passe</label>

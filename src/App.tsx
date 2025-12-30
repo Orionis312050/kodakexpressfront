@@ -167,7 +167,9 @@ function App() {
 
     if (loading) {
         return (
-            <SpinnerEmpty title="Chargement en cours..." description="Veuillez patienter." />
+            <div className="flex items-center justify-center w-full h-screen">
+                <SpinnerEmpty title="Chargement en cours..." description="Veuillez patienter." />
+            </div>
         );
     }
 
@@ -185,11 +187,11 @@ function App() {
                 {activeTab === 'home' && (
                     <>
                         <Hero setActiveTab={setActiveTab} />
-                        <ServicesSection products={products} showNotification={showNotification} />
+                        <ServicesSection products={products} />
                     </>
                 )}
 
-                {activeTab === 'services' && <ServicesSection products={products} showNotification={showNotification} />}
+                {activeTab === 'services' && <ServicesSection products={products} />}
 
                 {activeTab === 'commander' && <OrderSection onAddToCart={addToCart} setActiveTab={setActiveTab} currentUser={currentUser} />}
 

@@ -1,9 +1,7 @@
 import { Loader2Icon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
     Empty,
-    EmptyContent,
     EmptyDescription,
     EmptyHeader,
     EmptyMedia,
@@ -22,11 +20,6 @@ export function SpinnerEmpty({title, description}: {title: string, description: 
                     {description}
                 </EmptyDescription>
             </EmptyHeader>
-            <EmptyContent>
-                <Button variant="outline" size="sm">
-                    Cancel
-                </Button>
-            </EmptyContent>
         </Empty>
     )
 }

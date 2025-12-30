@@ -3,9 +3,7 @@ import JsxParser from "react-jsx-parser";
 import {type ProductData, ProductTypeIcon} from "../../constants/Interfaces";
 import type {IconName} from '../../constants/Interfaces';
 
-export const ServicesSection = ({ products, showNotification }: {products: ProductData[], showNotification: (message: string, messageType: 'SUCCESS' | 'ERROR' | 'LOADING' | 'INFO' | 'WARNING') => void}) => {
-
-    showNotification('Chargement des services...', 'LOADING');
+export const ServicesSection = ({ products }: { products: ProductData[] }) => {
 
     return (
         <div className="py-12 bg-gray-50">
