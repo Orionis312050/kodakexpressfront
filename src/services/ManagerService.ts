@@ -46,13 +46,16 @@ export class ManagerService {
             },
             credentials: 'include'
         });
-        if (!response.ok) return null;
 
-        const test = await response.json();
+        if (response.status === 401) {
+            return null;
+        }
 
-        console.log(test);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
 
-        return test;
+        return await response.json();
     }
 
     public async login(loginDto: LoginDto): Promise<UserContext | null> {

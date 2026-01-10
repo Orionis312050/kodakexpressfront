@@ -83,7 +83,6 @@ export const EditProfileView = ({ currentUser, onSave, onCancel, onLogout, locat
 
     useEffect(() => {
         if (fullUser) {
-            console.log("fullUser", fullUser);
             setFormData({
                 firstName: fullUser.firstName || '',
                 lastName: fullUser.lastName || '',

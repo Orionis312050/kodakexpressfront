@@ -44,6 +44,9 @@ function App() {
 
             if (user != null) {
                 setCurrentUser(user);
+            } else {
+                showNotification("Session expirée", "ERROR");
+
             }
         };
 
@@ -56,8 +59,6 @@ function App() {
                 // Appel à une API publique de géolocalisation IP
                 const response = await fetch('/api-ip/');
                 const data = await response.json();
-
-                console.log(data);
 
                 setLocation(data as LocationBrowser);
             } catch (error) {

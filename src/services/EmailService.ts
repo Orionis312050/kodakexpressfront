@@ -4,7 +4,7 @@
 import type {EmailPayload, EmailResponse} from '../constants/Interfaces';
 
 export class EmailService {
-  private apiUrl: string = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  private apiUrl: string = 'http://localhost:5000';
 
   async sendEmail(payload: EmailPayload): Promise<EmailResponse> {
     try {
@@ -21,6 +21,9 @@ export class EmailService {
       }
 
       const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message);
+      }
       return {
         success: true,
         message: 'Email envoyé avec succès',
