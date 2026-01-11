@@ -137,6 +137,7 @@ export interface Order {
 export interface CartItem {
     name: string;
     price: number;
+    imageUrl?: string;
 }
 
 // 6. Données Services

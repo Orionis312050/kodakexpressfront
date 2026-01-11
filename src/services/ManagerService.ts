@@ -10,7 +10,7 @@ import type {
 
 export class ManagerService {
     private static managerService: ManagerService;
-    private uri: string = 'http://localhost:3001/'
+    private uri: string = '/api/'
 
     private constructor() {
     }
